@@ -5,13 +5,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/JailtonJunior94/udemy-api-devbook/src/config"
 	"github.com/JailtonJunior94/udemy-api-devbook/src/router"
 )
 
 func main() {
-	fmt.Println("Rodando API")
+	config.Carregar()
 
 	r := router.Gerar()
 
-	log.Fatal(http.ListenAndServe(":5000", r))
+	fmt.Printf("🚀 API is running on http://localhost:%d", config.Porta)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Porta), r))
 }
