@@ -2,6 +2,7 @@ package repositorios
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/JailtonJunior94/udemy-api-devbook/src/modelos"
@@ -37,4 +38,37 @@ func (repositorio Usuarios) Criar(usuario modelos.Usuario) (uint64, error) {
 	}
 
 	return uint64(lastInsertId), nil
+}
+
+func (repositorio Usuarios) Buscar(nomeOuNick string) ([]modelos.Usuario, error) {
+	nomeOuNick = fmt.Sprintf("%%%s%%", nomeOuNick)
+
+	linhas, erro := repositorio.db.Query(
+		"SELECT [Id], [Name], [Nick], [Email], [CriadoEm] FROM Usuarios WHERE [Name] LIKE @nomeOuNick OR [Nick] LIKE @nomeOuNick",
+		sql.Named("nomeOuNick", nomeOuNick))
+
+	if erro != nil {
+		return nil, erro
+	}
+	defer linhas.Close()
+
+	var usuarios []modelos.Usuario
+
+	for linhas.Next() {
+		var usuario modelos.Usuario
+
+		if erro = linhas.Scan(
+			&usuario.ID,
+			&usuario.Nome,
+			&usuario.Nick,
+			&usuario.Email,
+			&usuario.CriadoEm,
+		); erro != nil {
+			return nil, erro
+		}
+
+		usuarios = append(usuarios, usuario)
+	}
+
+	return usuarios, nil
 }
